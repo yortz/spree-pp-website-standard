@@ -1,4 +1,4 @@
-# Spree Pp Website Standard
+# Spree Pp Website Standard #
 
 Overrides the default Spree checkout process and uses offsite payment processing via PayPal's Website Payment Standard (WPS).  
 
