@@ -1,0 +1,20 @@
+<%= render :partial => 'admin/shared/order_tabs', :locals => {:current => "Order Details"} %>
+
+<table class="index">
+    <tr>
+      <th>Amount</th>
+      <th>Fee</th>
+      <th>Status</th>
+      <th>Transaction ID</th>
+      <th>Received at</th>
+    </tr>
+    <% @payment.txns.each do |t| %>
+      <tr>
+        <td><%=number_to_currency t.amount %></td>
+        <td><%=number_to_currency t.fee %></td>
+        <td><%=t.status %></td>
+        <td><%=t.transaction_id %></td>
+        <td><%=t.received_at %></td>
+      </tr>
+    <% end %>
+  </table>

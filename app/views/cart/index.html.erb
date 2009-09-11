@@ -32,7 +32,11 @@
     <h3><%= "#{t("Subtotal")}: #{number_to_currency(@cart.total)}" %></h3>
     <%= submit_tag t('Update') %>
     <% end %>
+   <%if current_user %>
     <%= render :partial => 'paypal_checkout' %>	
+    <%else %>
+	<p>Please Sign Up or Log In with your username and password to start shopping.</p>
+	<%end%>
   </div>
   
   <%if previous_location %>

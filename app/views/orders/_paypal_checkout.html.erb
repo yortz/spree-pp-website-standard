@@ -12,15 +12,19 @@
   <input id="item_name_<%= index + 1 %>" name="item_name_<%= index + 1 %>" type="hidden" value="<%= item.variant.product.name %>" />
   <input id="amount_<%= index + 1 %>" name="amount_<%= index + 1 %>" type="hidden" value="<%= item.price %>" />
   <input id="quantity_<%= index + 1 %>" name="quantity_<%= index + 1 %>" type="hidden" value="<%= item.quantity %>" />
+<% if item.variant.product.shippable == false %>
+<input name="no_shipping" type="hidden" value="1" />
+<%else%>
+<input name="no_shipping" type="hidden" value="2" />
+<%end%>
 <% end %>
 
 <!-- input id="amount" name="amount" type="hidden" value="58.97" /-->
 
-<input name="no_shipping" type="hidden" value="1" />
 <input id="cmd" name="cmd" type="hidden" value="_cart" />
 <input type="hidden" name="upload" value="1" />
 
-<p> <%= t('please_select_your_country') %>
+<!-- <p> <%= t('please_select_your_country') %>
   <select name="country" id="country">     
     <%= options_from_collection_for_select(Country.all, :id, :name, 214) %>
   </select>
@@ -30,7 +34,7 @@
 </span>
 <p>
 <%= t('zip_code_if_you_have_one')%>: <input id="zip" name="zip" type="text" value="" />
-</p>
+</p> -->
 
 <input id="notify_url" name="notify_url" type="hidden" value="<%= Spree::Paypal::Config[:ipn_notify_host] + order_paypal_payments_path(@order) %>" />
 <input type="hidden" name="rm" value ="2"> <!-- tells paypal that the return should be POST instead of GET -->
@@ -48,12 +52,13 @@
 <input id="item_number" name="item_number" type="hidden" value="11" / -->
 <!-- input id="bn" name="bn" type="hidden" value="ActiveMerchant" /-->
 
+
 <%= image_submit_tag "pp_checkout.gif" %>
 
 </form>
 
-
-<script type="text/javascript" charset="utf-8">
+<!-- REALLY DO NOT NEED THIS JS ANYMORE! -->
+<!-- <script type="text/javascript" charset="utf-8">
   function check_zipcode () {
     if ($('country').value == "United States" && ($('zip').value == null || $('zip').value.length < 5)) {
       $('needZipcode').show();
@@ -62,4 +67,4 @@
       return true;
     }
   }
-</script>
+</script> -->
