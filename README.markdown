@@ -43,7 +43,6 @@ You may want to implement your own custom logic by adding `state_machine` hooks.
       @order = Order.find_by_number(params[:id])
       @order.update_attribute("state", "paid")
       OrderNotifier.deliver_payment(@order)
-      # OrderNotifier.deliver_pending(@order)
       flash[:notice] = 'Order Paid, sent email notification to user'
       redirect_to :back
     end
