@@ -1,5 +1,6 @@
 class AddShipmentToPaypalTxns < ActiveRecord::Migration
   def self.up
+    
     add_column :paypal_txns, :name, :string
     add_column :paypal_txns, :country, :string
     add_column :paypal_txns, :city, :string

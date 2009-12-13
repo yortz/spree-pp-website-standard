@@ -14,6 +14,16 @@ class PpWebsiteStandardExtension < Spree::Extension
   url "http://github.com/Gregg/spree-pp-website-standard/tree/master"
   
   def activate
+    
+    ApplicationController.class_eval do
+    
+      # ADDED THIS METHOD SINCE IT WAS COMPLAINING IN PAYPAL PAYMENTS CONTROLLER (PP PAYMENT STANDARD EXTENSION)
+      def logged_in?
+              session = UserSession.find
+              session && session.record
+      end
+    
+    end
 
     # Add a partial for PaypalPayment txns
     Admin::OrdersController.class_eval do
@@ -28,6 +38,7 @@ class PpWebsiteStandardExtension < Spree::Extension
     # associate the order with the user (once they log in)
     OrdersController.class_eval do
       before_filter :associate_order, :only => :show
+      # before_filter :find_order, :only => :create
       private
       def associate_order  
         return unless payer_id = params[:payer_id]
@@ -36,6 +47,17 @@ class PpWebsiteStandardExtension < Spree::Extension
           order.update_attribute("user", current_user)
         end
       end
+      
+      # def find_order
+      # @order = Order.find_by_user_id(params[:current_user])
+      # if @order
+      #   flash[:notice] = "You already got an order"
+      #   redirect_back_or_default
+      # else
+      #   @order.save
+      #   flash[:notice] = "this is your first order"
+      # end
+      # end
     end
 
     # add new events and states to the FSM
@@ -51,6 +73,32 @@ class PpWebsiteStandardExtension < Spree::Extension
                                   
     Order.class_eval do 
       has_many :paypal_payments
+      
+      def after_payment
+        # email user and tell them we received their payment
+        OrderNotifier.deliver_payment(self)
+      end
+
+      def after_pending
+        OrderNotifier.deliver_pending(self)
+      end
+
+      def after_failure
+        OrderNotifier.deliver_failure(self)
+      end
+    end
+    
+    Admin::OrdersController.class_eval do
+
+      def setpaid
+        @order = Order.find_by_number(params[:id])
+        @order.update_attribute("state", "paid")
+        OrderNotifier.deliver_payment(@order)
+        # OrderNotifier.deliver_pending(@order)
+        flash[:notice] = 'Order Paid, sent notification email to user'
+        redirect_to :back
+      end
+
     end
   end
   

@@ -12,11 +12,15 @@
   <input id="item_name_<%= index + 1 %>" name="item_name_<%= index + 1 %>" type="hidden" value="<%= item.variant.product.name %>" />
   <input id="amount_<%= index + 1 %>" name="amount_<%= index + 1 %>" type="hidden" value="<%= item.price %>" />
   <input id="quantity_<%= index + 1 %>" name="quantity_<%= index + 1 %>" type="hidden" value="<%= item.quantity %>" />
-<% if item.variant.product.shippable == false %>
+
+<!-- Commented this out since I do not use non shippable items in this cart -->
+<!-- <% # if item.variant.product.shippable == false %>
 <input name="no_shipping" type="hidden" value="1" />
-<%else%>
+<%# else%>
 <input name="no_shipping" type="hidden" value="2" />
-<%end%>
+<%# end%> -->
+
+
 <% end %>
 
 <!-- input id="amount" name="amount" type="hidden" value="58.97" /-->
@@ -57,8 +61,8 @@
 
 </form>
 
-<!-- REALLY DO NOT NEED THIS JS ANYMORE! -->
-<!-- <script type="text/javascript" charset="utf-8">
+
+<script type="text/javascript" charset="utf-8">
   function check_zipcode () {
     if ($('country').value == "United States" && ($('zip').value == null || $('zip').value.length < 5)) {
       $('needZipcode').show();
@@ -67,4 +71,4 @@
       return true;
     }
   }
-</script> -->
+</script>

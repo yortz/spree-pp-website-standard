@@ -75,26 +75,33 @@ class PaypalPaymentsController < Spree::BaseController
                                  :received_at => params[:payment_date])
                                  # EXTRA FIELDS FOR SHIPMENT
                                  # :name => params[:address_name],
-                                 # :country => params[:address_country],
-                                 # :city => params[:address_city],
-                                 # :state => params[:address_state],
-                                 # :zip => params[:address_zip],
-                                 # :street => params[:address_street],
-                                 # :country_code => params[:address_country_code])
+                                 #                                  :country => params[:address_country],
+                                 #                                  :city => params[:address_city],
+                                 #                                  :state => params[:address_state],
+                                 #                                  :zip => params[:address_zip],
+                                 #                                  :street => params[:address_street],
+                                 #                                  :country_code => params[:address_country_code])
                                  # Added this so that it updates taxes in order and it then spits out correct values with updated total in order dertails
                                  @order.update_attribute("tax_amount", params[:payment_fee] )
-                                 @order.update_attribute("ship_amount", params[:mc_shipping] )
-                                 @order.update_attribute("shipment_method", params[:shipping_method] )
-                                 @order.update_attribute("shipment_name", params[:address_name] )
-                                 @order.update_attribute("shipment_country", params[:address_country] )
-                                 @order.update_attribute("shipment_city", params[:address_city] )
-                                 @order.update_attribute("shipment_state", params[:address_state] )
-                                 @order.update_attribute("shipment_zip", params[:address_zip] )
-                                 @order.update_attribute("shipment_street", params[:address_street] )
-                                 @order.update_attribute("shipment_country_code", params[:address_country_code] )
+                                 
+                                 # COMMENTED THOSE OUT SINCE I AM NOT DOING ANY SHIPMENT FOR SUBSCRIPTIONS HERE
+                                 # @order.update_attribute("ship_amount", params[:mc_shipping] )
+                                 # @order.update_attribute("shipment_method", params[:shipping_method] )
+                                 # @order.update_attribute("shipment_name", params[:address_name] )
+                                 # @order.update_attribute("shipment_country", params[:address_country] )
+                                 # @order.update_attribute("shipment_city", params[:address_city] )
+                                 # @order.update_attribute("shipment_state", params[:address_state] )
+                                 # @order.update_attribute("shipment_zip", params[:address_zip] )
+                                 # @order.update_attribute("shipment_street", params[:address_street] )
+                                 # @order.update_attribute("shipment_country_code", params[:address_country_code] )
                                  
       # advance the state
-      @order.pend_payment!  
+      @order.pend_payment! 
+      
+      # Addition to subscription, in this way I mark the current_user as subscribed once he pays for a virtual
+      # product aka a subscriptions, so that I can then implement my own logic when he log in and try to buy another one.
+      # current_user.update_attribute("subscribed", true)
+       
     else
       paypal_payment = @order.paypal_payments.last
     end
