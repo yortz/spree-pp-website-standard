@@ -12,19 +12,41 @@ Regarding Taxes and shipping, we assumed you'd want to use Paypal's system for t
 You may want to implement your own custom logic by adding `state_machine` hooks.  Just add these hooks in your site extension (don't change the `pp_website_standard` extension.) Here's an example of how to add the hooks to your site extension.
 
 <pre>
-fsm = Order.state_machines['state']  
-fsm.after_transition :to => 'paid', :do => :after_payment
-fsm.after_transition :to => 'pending_payment', :do => :after_pending  
-
-Order.class_eval do  
-  def after_payment
-    # email user and tell them we received their payment
+  # Setting hooks for pp_payment_standard extension
+  
+  fsm = Order.state_machines['state']  
+  fsm.after_transition :to => 'paid', :do => :after_payment
+  fsm.after_transition :to => 'payment_pending', :do => :after_pending  
+  fsm.after_transition :to => 'payment_failure', :do => :after_failure
+  
+  
+  Order.class_eval do  
+    
+    def after_payment
+      # email user and tell them we received their payment
+      OrderNotifier.deliver_payment(self)
+    end
+  
+    def after_pending
+      OrderNotifier.deliver_pending(self)
+    end
+    
+    def after_failure
+      OrderNotifier.deliver_failure(self)
+    end
+    
   end
   
-  def after_pending
-    # email user and thell them that we are processing their order, etc.
-  end
-end
+  Admin::OrdersController.class_eval do
+    
+    def setpaid
+      @order = Order.find_by_number(params[:id])
+      @order.update_attribute("state", "paid")
+      OrderNotifier.deliver_payment(@order)
+      # OrderNotifier.deliver_pending(@order)
+      flash[:notice] = 'Order Paid, sent email notification to user'
+      redirect_to :back
+    end
 </pre>  
         
 # Configuration

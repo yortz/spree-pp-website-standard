@@ -13,6 +13,22 @@ Order Summary - STATUS: PAID -
 ============================================================
 Subtotal: <%= number_to_currency @order.item_total %>
 Tax: <%= number_to_currency @order.tax_amount %>
+Shipping: <%= number_to_currency @order.ship_amount %>
 Order Total: <%= number_to_currency @order.total %>
+
+
+Your order has been shipped to the following address:
+
+
+============================================================
+Shipping Details:
+============================================================
+To: <%= @order.shipment_name %>
+address: <%= @order.shipment_street %>
+city: <%= @order.shipment_city %>
+country: <%= @order.shipment_state %>
+zip: <%= @order.shipment_zip %>
+country code: <%= @order.shipment_country_code %>
+
 
 Thank you for your business.
