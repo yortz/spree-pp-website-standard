@@ -1,5 +1,7 @@
 # Uncomment this if you reference any of your controllers in activate
+require 'pluginaweek-state_machine'
 require_dependency 'application_controller'
+
 =begin
 unless RAILS_ENV == 'production'
   PAYPAL_ACCOUNT = 'joe@bidness.com'
