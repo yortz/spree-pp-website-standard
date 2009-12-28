@@ -1,5 +1,4 @@
 # Uncomment this if you reference any of your controllers in activate
-require 'pluginaweek-state_machine'
 require_dependency 'application_controller'
 
 =begin
@@ -63,16 +62,20 @@ class PpWebsiteStandardExtension < Spree::Extension
     end
 
     # add new events and states to the FSM
-    fsm = Order.state_machines[:state]  
-    fsm.events["fail_payment"] = PluginAWeek::StateMachine::Event.new(fsm, "fail_payment")
-    fsm.events["fail_payment"].transition(:to => 'payment_failure', :from => ['in_progress', 'payment_pending'])
-
-    fsm.events["pend_payment"] = PluginAWeek::StateMachine::Event.new(fsm, "pend_payment")
-    fsm.events["pend_payment"].transition(:to => 'payment_pending', :from => 'in_progress')    
+    fsm = Order.state_machines[:state]
+    
+    new_event = StateMachine::Event.new(fsm, "fail_payment")
+    new_event.transition(:to => 'payment_failure', :from => ['in_progress', 'payment_pending'])
+    fsm.events << new_event
+    
+    new_event = StateMachine::Event.new(fsm, "pend_payment")
+    new_event.transition(:to => 'payment_pending', :from => 'in_progress')
+    fsm.events << new_event
+    
     fsm.after_transition :to => 'payment_pending', :do => lambda {|order| order.update_attribute(:checkout_complete, true)}  
 
     fsm.events["pay"].transition(:to => 'paid', :from => ['payment_pending', 'in_progress'])
-                                  
+    
     Order.class_eval do 
       has_many :paypal_payments
     end
