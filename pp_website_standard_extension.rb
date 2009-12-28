@@ -1,5 +1,5 @@
 # Uncomment this if you reference any of your controllers in activate
-require_dependency 'application'
+require_dependency 'application_controller'
 =begin
 unless RAILS_ENV == 'production'
   PAYPAL_ACCOUNT = 'joe@bidness.com'
@@ -61,7 +61,7 @@ class PpWebsiteStandardExtension < Spree::Extension
     end
 
     # add new events and states to the FSM
-    fsm = Order.state_machines['state']  
+    fsm = Order.state_machines[:state]  
     fsm.events["fail_payment"] = PluginAWeek::StateMachine::Event.new(fsm, "fail_payment")
     fsm.events["fail_payment"].transition(:to => 'payment_failure', :from => ['in_progress', 'payment_pending'])
 
