@@ -5,9 +5,9 @@ class PaypalConfiguration < Configuration
   preference :paypal_url, :string, :default => "https://www.paypal.com/cgi-bin/webscr"
   
   # these are just default preferences of course, you'll need to change them to something meaningful
-  preference :account, :string, :default => "foo@example.com"
-  preference :ipn_notify_host, :string, :default => "http://123.456.78:3000"
-  preference :success_url, :string, :default => "http://localhost:3000/checkout/success"
+  preference :account, :string, :default => "yortz_1226170417_biz@fastwebnet.it"
+  preference :ipn_notify_host, :string, :default => "http://store.colorsoflife.org"
+  preference :success_url, :string, :default => "http://store.colorsoflife.org/checkout/success"
   
   validates_presence_of :name
   validates_uniqueness_of :name

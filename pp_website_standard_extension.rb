@@ -1,5 +1,5 @@
 # Uncomment this if you reference any of your controllers in activate
-require_dependency 'application'
+# require_dependency 'application_controller'
 =begin
 unless RAILS_ENV == 'production'
   PAYPAL_ACCOUNT = 'joe@bidness.com'
@@ -15,7 +15,7 @@ class PpWebsiteStandardExtension < Spree::Extension
   
   def activate
     
-    ApplicationController.class_eval do
+    Spree::BaseController.class_eval do
     
       # ADDED THIS METHOD SINCE IT WAS COMPLAINING IN PAYPAL PAYMENTS CONTROLLER (PP PAYMENT STANDARD EXTENSION)
       def logged_in?
@@ -39,6 +39,24 @@ class PpWebsiteStandardExtension < Spree::Extension
     OrdersController.class_eval do
       before_filter :associate_order, :only => :show
       # before_filter :find_order, :only => :create
+      
+      #override r_c default b/c we don't want to actually destroy, we just want to clear line items
+      # def destroy
+      #   flash[:notice] = I18n.t(:basket_successfully_cleared)
+      #   @order.line_items.clear
+      #   @order.update_totals!
+      #   @order.destroy
+      #   after :destroy
+      #   set_flash :destroy
+      #   response_for :destroy
+      # end
+      
+      
+      destroy.response do |wants|
+        wants.html { redirect_to(subscribe_path) } 
+      end
+      
+      
       private
       def associate_order  
         return unless payer_id = params[:payer_id]
@@ -59,17 +77,36 @@ class PpWebsiteStandardExtension < Spree::Extension
       # end
       # end
     end
-
+    
+    # # # # # # # # # COMMENTED ALL OUT SINCE IT WAS WORKING WITH 0.9.2 
+    # # # # # # # # # NOW WITH SPREE 0.9.4 state machine is included as gem and
+    # # # # # # # # # got a new syntax
     # add new events and states to the FSM
-    fsm = Order.state_machines['state']  
-    fsm.events["fail_payment"] = PluginAWeek::StateMachine::Event.new(fsm, "fail_payment")
-    fsm.events["fail_payment"].transition(:to => 'payment_failure', :from => ['in_progress', 'payment_pending'])
-
-    fsm.events["pend_payment"] = PluginAWeek::StateMachine::Event.new(fsm, "pend_payment")
-    fsm.events["pend_payment"].transition(:to => 'payment_pending', :from => 'in_progress')    
+    # fsm = Order.state_machines['state']  
+    # fsm.events["fail_payment"] = PluginAWeek::StateMachine::Event.new(fsm, "fail_payment")
+    # fsm.events["fail_payment"].transition(:to => 'payment_failure', :from => ['in_progress', 'payment_pending'])
+    #
+    # fsm.events["pend_payment"] = PluginAWeek::StateMachine::Event.new(fsm, "pend_payment")
+    # fsm.events["pend_payment"].transition(:to => 'payment_pending', :from => 'in_progress')    
+    # fsm.after_transition :to => 'payment_pending', :do => lambda {|order| order.update_attribute(:checkout_complete, true)}  
+    # 
+    # fsm.events["pay"].transition(:to => 'paid', :from => ['payment_pending', 'in_progress'])
+    
+    
+    # add new events and states to the FSM
+    fsm = Order.state_machines[:state]
+    
+    new_event = StateMachine::Event.new(fsm, "fail_payment")
+    new_event.transition(:to => 'payment_failure', :from => ['in_progress', 'payment_pending'])
+    fsm.events << new_event
+    
+    new_event = StateMachine::Event.new(fsm, "pend_payment")
+    new_event.transition(:to => 'payment_pending', :from => 'in_progress')
+    fsm.events << new_event
+    
     fsm.after_transition :to => 'payment_pending', :do => lambda {|order| order.update_attribute(:checkout_complete, true)}  
 
-    fsm.events["pay"].transition(:to => 'paid', :from => ['payment_pending', 'in_progress'])
+    fsm.events[:pay].transition(:to => 'paid', :from => ['payment_pending', 'in_progress'])
                                   
     Order.class_eval do 
       has_many :paypal_payments

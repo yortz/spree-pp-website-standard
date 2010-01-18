@@ -60,29 +60,53 @@ class PaypalPaymentsController < Spree::BaseController
      @order.update_attribute("email", current_user.email)     
    end
    
+   
   # Action for handling the "return to site" link after user completes the transaction on the Paypal website.  
   def successful 
     @order.update_attribute("ip_address", request.env['REMOTE_ADDR'] || "unknown")
+    
+    # Let's update the checkout table
+     @order.checkout.update_attribute("email", current_user.email)
+     @order.checkout.update_attribute("ip_address", request.env['REMOTE_ADDR'] || "unknown")
+
+     
     # its possible that the IPN has already been received at this point so that
     if @order.paypal_payments.empty?
       # create a payment and record the successful transaction
-      paypal_payment = @order.paypal_payments.create(:email => params[:payer_email], :payer_id => params[:payer_id])
+      paypal_payment = @order.paypal_payments.create(:email => params[:payer_email], :payer_id => params[:payer_id], :amount => params[:tax])
       paypal_payment.txns.create(:amount => params[:mc_gross].to_d, 
                                  :status => "Processed",
                                  :transaction_id => params[:txn_id],
                                  :fee => params[:payment_fee],
                                  :currency_type => params[:mc_currency],
                                  :received_at => params[:payment_date])
+                                 
                                  # EXTRA FIELDS FOR SHIPMENT
                                  # :name => params[:address_name],
-                                 #                                  :country => params[:address_country],
-                                 #                                  :city => params[:address_city],
-                                 #                                  :state => params[:address_state],
-                                 #                                  :zip => params[:address_zip],
-                                 #                                  :street => params[:address_street],
-                                 #                                  :country_code => params[:address_country_code])
+                                 # :country => params[:address_country],
+                                 # :city => params[:address_city],
+                                 # :state => params[:address_state],
+                                 # :zip => params[:address_zip],
+                                 # :street => params[:address_street],
+                                 # :country_code => params[:address_country_code])
+                                 
                                  # Added this so that it updates taxes in order and it then spits out correct values with updated total in order dertails
-                                 @order.update_attribute("tax_amount", params[:payment_fee] )
+                                 @order.update_attribute("tax_amount", params[:tax] )
+                                 @order.update_attribute("total", params[:mc_gross])
+                                 
+                                 # if ipn comes back i mark the order as complete
+                                 @order.update_attribute("completed_at", Time.now)
+                                 
+                                 # Add the first and last name to checkout so that the search form in admin/orders index doesn't complain
+                                 @order.checkout.update_attribute("first_name", params[:first_name])
+                                 @order.checkout.update_attribute("last_name", params[:last_name])
+                                 @order.checkout.update_attribute("country", params[:residence_country])
+                                 @order.checkout.update_attribute("special_instructions", params[:memo])
+                                 
+                                 # need to add the amount for pp tax to the adjustment aka @order.charges otherwise it will break calculation on order edit
+                                 @adjustment = Adjustment.find_by_order_id(@order.id)
+                                 @adjustment.update_attribute("amount", params[:tax])
+                                 # @order.charges.update_attribute("amount", params[:tax])
                                  
                                  # COMMENTED THOSE OUT SINCE I AM NOT DOING ANY SHIPMENT FOR SUBSCRIPTIONS HERE
                                  # @order.update_attribute("ship_amount", params[:mc_shipping] )
@@ -100,7 +124,7 @@ class PaypalPaymentsController < Spree::BaseController
       
       # Addition to subscription, in this way I mark the current_user as subscribed once he pays for a virtual
       # product aka a subscriptions, so that I can then implement my own logic when he log in and try to buy another one.
-      # current_user.update_attribute("subscribed", true)
+      current_user.update_attribute("subscribed", true)
        
     else
       paypal_payment = @order.paypal_payments.last

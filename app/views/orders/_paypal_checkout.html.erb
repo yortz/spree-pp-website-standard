@@ -1,7 +1,7 @@
 <% if RAILS_ENV == 'development' %>
   <form action="<%= Spree::Paypal::Config[:sandbox_url] %>" method="post" onsubmit="return check_zipcode();">
 <% else %>
-  <form action="<%= Spree::Paypal::Config[:paypal_url] %>" method="post" onsubmit="return check_zipcode();">
+  <form action="<%= Spree::Paypal::Config[:sandbox_url] %>" method="post" onsubmit="return check_zipcode();">
 <% end %>
 
 <!-- display payment summary here -->
@@ -43,7 +43,8 @@
 <input id="notify_url" name="notify_url" type="hidden" value="<%= Spree::Paypal::Config[:ipn_notify_host] + order_paypal_payments_path(@order) %>" />
 <input type="hidden" name="rm" value ="2"> <!-- tells paypal that the return should be POST instead of GET -->
 <input id="return" name="return" type="hidden" value="<%= successful_order_paypal_payments_url(@order) %>" />
-
+<!-- Added this to remove shipping since those are all virtual products -->
+<input type="hidden" name="no_shipping" value="1">
 <!-- input id="address_override" name="address_override" type="hidden" value="0" />
 <input id="charset" name="charset" type="hidden" value="utf-8" />
 <input id="no_note" name="no_note" type="hidden" value="1" />

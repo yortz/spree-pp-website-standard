@@ -1,5 +1,35 @@
-<%= render :partial => 'admin/shared/order_tabs', :locals => {:current => "Order Details"} %>
+<div class='toolbar'>
+  <ul class='actions'>
+    <li>
 
+    </li>
+  </ul>
+  <br class='clear' />
+</div>
+
+<%= render :partial => 'admin/shared/order_tabs', :locals => {:current => "Payments"} %>
+
+<table class="index">
+  <tr>
+    <th><%= "#{t('spree.date')}/#{t('spree.time')}" %></th>
+    <th><%= t("amount") %></th>
+    <th><%= t("type") %></th>
+    <th> paypal payer email </th>
+    <th> paypal payer ID </th>
+  </tr>
+    <tr>
+      <td><%= @payment.created_at.to_s(:date_time24) %></td>
+      <td><%= number_to_currency(@payment.amount) %></td>
+      <td><%= @payment.class.to_s %></td>
+      <td><%= @payment.email %></td>
+      <td><%= @payment.payer_id %></td>
+      <td>
+       
+      </td>
+    </tr>
+</table>
+
+<h3>Paypal Transaction Details </h3>
 <table class="index">
     <tr>
       <th>Amount</th>
