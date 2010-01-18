@@ -29,7 +29,11 @@ end
         
 # Configuration
 
-Be sure to configure the following configuration parameters.  
+Be sure to configure the following configuration parameters or override the dummy ones in lib/paypal_configuration.rb
+
+preference :account, :string, :default => "foo@example.com"
+preference :ipn_notify_host, :string, :default => "http://123.456.78:3000"
+preference :success_url, :string, :default => "http://localhost:3000/checkout/success"
 
 Example
 
@@ -57,7 +61,7 @@ end
 # Installation 
 
 <pre>
-script/extension install git://github.com/Gregg/spree-pp-website-standard.git  
+script/extension install git://github.com/yortz/spree-pp-website-standard.git  
 </pre>
 
 # IPN Notes
