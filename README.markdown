@@ -12,9 +12,10 @@ Regarding Taxes and shipping, we assumed you'd want to use Paypal's system for t
 You may want to implement your own custom logic by adding `state_machine` hooks.  Just add these hooks in your site extension (don't change the `pp_website_standard` extension.) Here's an example of how to add the hooks to your site extension.
 
 <pre>
-fsm = Order.state_machines['state']  
-fsm.after_transition :to => 'paid', :do => :after_payment
-fsm.after_transition :to => 'pending_payment', :do => :after_pending  
+  fsm = Order.state_machines[:state]
+  fsm.after_transition :to => 'paid', :do => :after_payment
+  fsm.after_transition :to => 'payment_pending', :do => :after_pending  
+  fsm.after_transition :to => 'payment_failure', :do => :after_failure
 
 Order.class_eval do  
   def after_payment
@@ -31,9 +32,11 @@ end
 
 Be sure to configure the following configuration parameters or override the dummy ones in lib/paypal_configuration.rb
 
+<pre>
 preference :account, :string, :default => "foo@example.com"
 preference :ipn_notify_host, :string, :default => "http://123.456.78:3000"
 preference :success_url, :string, :default => "http://localhost:3000/checkout/success"
+</pre>
 
 Example
 
