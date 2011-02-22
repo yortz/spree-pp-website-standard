@@ -31,7 +31,7 @@ Be sure to configure the following configuration parameters. Preferably put it i
 
 Example:
 
-    Spree::Paypal::Config.set(:account => "foo@example.com") 
+		Spree::Paypal::Config.set(:account => "foo@example.com") 
 		Spree::Paypal::Config.set(:ipn_notify_host => "http://example.com:3000")
 		Spree::Paypal::Config.set(:success_url => "http://localhost:3000/paypal/confirm")
 
